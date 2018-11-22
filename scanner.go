@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"io"
 
-	"github.com/aybabtme/humanlog/parser/logfmt"
+	"github.com/jigish/humanlog/parser/logfmt"
 )
 
 var (
@@ -23,9 +23,11 @@ func Scanner(src io.Reader, dst io.Writer, opts *HandlerOptions) error {
 
 	var lastLogrus bool
 	var lastJSON bool
+	var lastJournalJSON bool
 
 	logrusEntry := LogrusHandler{Opts: opts}
 	jsonEntry := JSONHandler{Opts: opts}
+	journalJSONEntry := JournalJSONHandler{Opts: opts}
 
 	for in.Scan() {
 		line++
@@ -35,6 +37,10 @@ func Scanner(src io.Reader, dst io.Writer, opts *HandlerOptions) error {
 		lineData = bytes.TrimPrefix(lineData, []byte("@cee: "))
 
 		switch {
+
+		case journalJSONEntry.TryHandle(lineData):
+			dst.Write(journalJSONEntry.Prettify(opts.SkipUnchanged && lastJournalJSON))
+			lastJournalJSON = true
 
 		case jsonEntry.TryHandle(lineData):
 			dst.Write(jsonEntry.Prettify(opts.SkipUnchanged && lastJSON))
@@ -47,6 +53,7 @@ func Scanner(src io.Reader, dst io.Writer, opts *HandlerOptions) error {
 		default:
 			lastLogrus = false
 			lastJSON = false
+			lastJournalJSON = false
 			dst.Write(lineData)
 		}
 		dst.Write(eol[:])
