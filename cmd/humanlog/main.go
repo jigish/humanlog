@@ -56,7 +56,7 @@ func newApp() *cli.App {
 		Usage: "sort by longest key after having sorted lexicographically",
 	}
 
-	skipUnchanged := cli.BoolTFlag{
+	skipUnchanged := cli.BoolFlag{
 		Name:  "skip-unchanged",
 		Usage: "skip keys that have the same value than the previous entry",
 	}

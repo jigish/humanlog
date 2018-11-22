@@ -16,7 +16,7 @@ type Handler interface {
 
 var DefaultOptions = &HandlerOptions{
 	SortLongest:    true,
-	SkipUnchanged:  true,
+	SkipUnchanged:  false,
 	Truncates:      true,
 	LightBg:        false,
 	TruncateLength: 15,

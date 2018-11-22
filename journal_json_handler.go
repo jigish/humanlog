@@ -222,7 +222,7 @@ func (h *JournalJSONHandler) joinKVs(skipUnchanged bool, sep string) []string {
 		}
 
 		if skipUnchanged {
-			if lastV, ok := h.last[k]; ok && lastV == v && !h.Opts.shouldShowUnchanged(k) {
+			if lastV, ok := h.last[k]; ok && lastV == v && !h.shouldShowUnchanged(k) {
 				continue
 			}
 		}
