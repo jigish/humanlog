@@ -43,7 +43,7 @@ func (h *JournalJSONHandler) clear() {
 
 // TryHandle tells if this line was handled by this handler.
 func (h *JournalJSONHandler) TryHandle(d []byte) bool {
-	if !bytes.Contains(d, []byte(`"__SOURCE_REALTIME_TIMESTAMP"`)) {
+	if !bytes.Contains(d, []byte(`"_SOURCE_REALTIME_TIMESTAMP"`)) {
 		return false
 	}
 	err := h.UnmarshalJournalJSON(d)
@@ -62,12 +62,12 @@ func (h *JournalJSONHandler) UnmarshalJournalJSON(data []byte) error {
 		return err
 	}
 
-	timestamp, ok := raw["__SOURCE_REALTIME_TIMESTAMP"]
+	timestamp, ok := raw["_SOURCE_REALTIME_TIMESTAMP"]
 	if ok {
-		delete(raw, "__SOURCE_REALTIME_TIMESTAMP")
+		delete(raw, "_SOURCE_REALTIME_TIMESTAMP")
 		timeString, ok := timestamp.(string)
 		if !ok {
-			return fmt.Errorf("__SOURCE_REALTIME_TIMESTAMP %v is not type string", timestamp)
+			return fmt.Errorf("_SOURCE_REALTIME_TIMESTAMP %v is not type string", timestamp)
 		}
 		timeMicros, err := strconv.ParseInt(timeString, 10, 64)
 		if err != nil {
