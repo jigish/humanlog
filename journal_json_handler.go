@@ -54,14 +54,20 @@ func (h *JournalJSONHandler) TryHandle(d []byte) bool {
 	return true
 }
 
-// UnmarshalJournalJSON sets the fields of the handler.
-func (h *JournalJSONHandler) UnmarshalJournalJSON(data []byte) error {
-	raw := make(map[string]interface{})
-	err := json.Unmarshal(data, &raw)
-	if err != nil {
-		return err
+// TryHandleMap tells if this line was handled by this handler.
+func (h *JournalJSONHandler) TryHandleEntry(entry map[string]interface{}) bool {
+	if _, exists := entry["_SOURCE_REALTIME_TIMESTAMP"]; !exists {
+		return false
 	}
+	err := h.UnmarshalJournalEntry(entry)
+	if err != nil {
+		h.clear()
+		return false
+	}
+	return true
+}
 
+func (h *JournalJSONHandler) UnmarshalJournalEntry(raw map[string]interface{}) error {
 	timestamp, ok := raw["_SOURCE_REALTIME_TIMESTAMP"]
 	if ok {
 		delete(raw, "_SOURCE_REALTIME_TIMESTAMP")
@@ -104,6 +110,17 @@ func (h *JournalJSONHandler) UnmarshalJournalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+// UnmarshalJournalJSON sets the fields of the handler.
+func (h *JournalJSONHandler) UnmarshalJournalJSON(data []byte) error {
+	raw := make(map[string]interface{})
+	err := json.Unmarshal(data, &raw)
+	if err != nil {
+		return err
+	}
+
+	return h.UnmarshalJournalEntry(raw)
 }
 
 // Prettify the output in a logrus like fashion.
